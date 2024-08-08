@@ -1,5 +1,6 @@
 import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { Transport } from '@nestjs/microservices';
 
 import { AppModule } from './app.module';
@@ -8,6 +9,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('v1/api');
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   app.use(helmet());
   app.enableCors();

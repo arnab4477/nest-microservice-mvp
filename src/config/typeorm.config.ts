@@ -10,8 +10,8 @@ const AppDataSource = new DataSource({
   database: CONFIG.DB_NAME,
   name: CONFIG.DB_NAME,
   entities: ['dist/entities/*.entity{.ts,.js}'],
-  migrations: ['dist/migrations/app/*{.ts,.js}'],
-  logging: true,
+  migrations: ['dist/migrations/*{.ts,.js}'],
+  logging: false,
   migrationsTableName: 'migrations',
 });
 
@@ -23,4 +23,4 @@ AppDataSource.initialize()
     console.log(err);
   });
 
-export default AppDataSource;
+export { AppDataSource };

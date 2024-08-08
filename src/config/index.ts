@@ -5,3 +5,5 @@ export const CONFIG = {
   DB_PASSWORD: process.env.DB_PASSWORD,
   DB_NAME: process.env.DB_NAME,
 };
+
+export * from './typeorm.config';

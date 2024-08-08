@@ -13,6 +13,7 @@
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "app:migration-cli": "typeorm -d ./dist/config/typeorm.config.js",
     "lint": "eslint $(git diff --diff-filter=d --name-only HEAD '**/*.ts' | xargs)",
     "test": "jest -w 2 --max-old-space-size=8192 --no-compilation-cache --workerIdleMemoryLimit=512 --verbose --silent",
     "test:cov": "jest --coverage"
@@ -27,9 +28,7 @@
     "class-validator": "^0.14.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
-    "nestjs-pino": "^3.3.0",
     "pg": "^8.12.0",
-    "pino-http-print": "^3.1.0",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",

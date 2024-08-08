@@ -21,6 +21,7 @@
   "dependencies": {
     "@nestjs/common": "^10.0.3",
     "@nestjs/core": "^10.0.3",
+    "@nestjs/mapped-types": "*",
     "@nestjs/microservices": "^10.3.10",
     "@nestjs/platform-express": "^10.0.3",
     "@nestjs/typeorm": "^10.0.2",
@@ -85,9 +86,6 @@
       "**/*.service.ts"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "setupFiles": [
-      "../test/setup-faker.ts"
-    ]
+    "testEnvironment": "node"
   }
 }

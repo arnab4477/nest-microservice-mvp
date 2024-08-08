@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CONFIG, AppDataSource } from 'config';
 import { LoggerMiddleware } from 'middlewares';
 import { AppController } from './app.controller';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AppController } from './app.controller';
         return AppDataSource;
       },
     }),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [],

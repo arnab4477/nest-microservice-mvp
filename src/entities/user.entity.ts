@@ -6,17 +6,17 @@ export class UserEntity {
   id: string;
 
   @Column({ length: 20 })
-  @Index()
   name: string;
 
   @Column({ length: 20 })
   surname: string;
 
   @Column({ unique: true, length: 20 })
-  @Index()
+  @Index('IDX_username')
   username: string;
 
   @Column({ type: 'date' })
+  @Index('IDX_birthdate')
   birthdate: Date;
 
   @CreateDateColumn()

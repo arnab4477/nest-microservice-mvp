@@ -1,8 +1,9 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { UserEntity } from 'entities';
 import { CONFIG, AppDataSource } from 'config';
-import { LoggerMiddleware } from 'middlewares';
+import { AuthMiddleware, LoggerMiddleware } from 'middlewares';
 import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
 
@@ -32,13 +33,15 @@ import { UsersModule } from './users/users.module';
         return AppDataSource;
       },
     }),
+    TypeOrmModule.forFeature([UserEntity]),
     UsersModule,
   ],
+
   controllers: [AppController],
   providers: [],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('*').apply(AuthMiddleware).exclude('/').forRoutes('*');
   }
 }

@@ -13,7 +13,7 @@ export class AuthMiddleware {
   ) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
-    if (req.method.toLowerCase() !== 'get') {
+    if (!['get', 'put'].includes(req.method.toLowerCase())) {
       return next();
     }
 

@@ -4,9 +4,10 @@ import {
   HttpException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 
 import { UserBlockEntity } from 'entities';
 
@@ -40,6 +41,11 @@ export class BlockService {
     } catch (err: any) {
       if (err instanceof HttpException) {
         throw err;
+      }
+      if (err instanceof QueryFailedError) {
+        if (err.message.includes('FK_blocked_id')) {
+          throw new NotFoundException('the user you are trying to block does not exist');
+        }
       }
       console.error(err);
       throw new InternalServerErrorException(err?.message || '');

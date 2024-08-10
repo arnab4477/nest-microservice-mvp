@@ -22,7 +22,7 @@ export class RedisService {
         .get(key)
         .then((val) => {
           if (val) {
-            resolve(JSON.parse(val));
+            resolve(val);
           }
           resolve(null);
         })
@@ -31,7 +31,7 @@ export class RedisService {
   }
 
   set(key: string, value: string) {
-    this.client.set(key, JSON.stringify(value), { EX: this.TTL }).catch((err) => console.log(err));
+    this.client.set(key, value, { EX: this.TTL }).catch((err) => console.log(err));
   }
 
   del(key: string) {

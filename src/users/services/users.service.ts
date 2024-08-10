@@ -22,12 +22,14 @@ import { UserEntity } from 'entities';
 import { CONFIG } from 'config';
 import { CreateUserDto, GetUserQueryDto, UpdateUserDto } from 'users/dto';
 import { BlockService } from 'block/services/block.service';
+import { RedisService } from 'redis/redis.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity) private readonly userModel: Repository<UserEntity>,
     private readonly blockService: BlockService,
+    private readonly redisService: RedisService,
   ) {}
 
   async find(query: GetUserQueryDto, currentUserId: string) {
@@ -86,10 +88,12 @@ export class UsersService {
     try {
       const user = await this.userModel.save(this.userModel.create(data));
 
-      // This token needs to be passed for subsequent GET requests
+      // This token needs to be passed for subsequent GET and PUT requests for authentication
       const token = jwt.sign({ sub: user.id }, CONFIG.JWT_SECRET, {
         expiresIn: '30d',
       });
+
+      this.redisService.set(user.id, 'true');
 
       return {
         message: 'success',
@@ -121,7 +125,11 @@ export class UsersService {
     if (!exists) {
       throw new NotFoundException();
     }
+
+    this.redisService.del(id);
+
     await this.userModel.delete({ id });
+
     return { message: 'success' };
   }
 }

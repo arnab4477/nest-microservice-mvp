@@ -1,73 +1,104 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Running the server:
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## System Requirements:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+[Docker](https://docs.docker.com/get-docker/)
 
-## Description
+[Docker Compose](https://docs.docker.com/compose/install/)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Instructions (Linux):
 
-## Installation
+### Clone this repository
 
 ```bash
-$ npm install
+git clone git@github.com:arnab4477/nest-microservice-mvp.git && cd nest-microservice-mvp/
 ```
 
-## Running the app
+### Build & start the server
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker-compose up -d
 ```
 
-## Test
+### Ping the server
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+curl http://localhost:6000/v1/api/
 ```
 
-## Support
+### Check the logs
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+docker-compose logs -f app
+```
 
-## Stay in touch
+# Technologies used
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **Backend Framework**
+  - Nestjs
+- **Database**
+  - Postgres
+  - TypeORM
+- **Authentication (minimal)**
+  - JWT
+- **Caching**
+  - Redis
+- **Testing**
+  - Jest
+  - Automock
+- **CI (pre-commit checks)**
+  - Husky
+- **Deployment**
+  - Docker
+  - Docker Compose
 
-## License
+# API Routes
 
-Nest is [MIT licensed](LICENSE).
+BaseUrl: `'/api/v1'` (all routes mentioned below will have this prefix)
+
+## Healthcheck
+
+- GET - `'/'` (returns app running status & version information)
+
+## Users
+
+Request bodies/queries/parameters in `src/users/dto`
+
+- POST - `'/users'` (creates a new user, errs if passed username is already present in the database)
+- GET - `'/users/:id'` (retrieves an existing user)
+- PATCH - `'/users/:id'` (updates an existing user, username cannot be updated)
+- DELETE - `'/users/:id'` (deletes an existing user)
+- GET - `'/users/search'` (searches and retrives paginated users based on username and/or age range, blocked users not included in the result set)
+
+## Blocking/Unblocking
+
+Request body in `src/block/dto`
+
+- PUT - `'/block'` (blocks or unblocks an user from another user)
+
+# Architecture
+
+## DB model and logic
+
+DB migrations in `src/migrations`
+
+### Users
+
+- Users is a simple table in postgres with the provided columns. Only `created_at` and `updated_at` have been added
+- `username` has an unqiue constraint
+- `username` and `birthdate` have indexes as these fields would be required in searches
+- `name`, `username` and `surname` all have a maximum length constraint of 20 characters
+
+### Blocking
+
+- The blocking table is simple, other than the primary key, there are only two columns, `blocker_id` (of the user who is blocking) and `blocked_id` (the user who got blocked). Both of these are foreign keys, creating two _many-to-one_ relationships with the users table.
+- When a blocking/unblocking request is passed (to block or to unblock is determined by the `block` boolean passed in the request body in the block API), validation is done based if the usee has already blocked/unblocked the given user and if all checks pass, a new record is inserted (blocked) or an existing record is removed (unbloced)
+- In the search API, a the condition is passed while fetching the users, where if any record exists with the current (searching) user's ID as the `blocker_id`, then the returned users ID must not be the `blocked_id` of that record, effectively filtering out all the blocked users
+
+## Caching
+
+A basic caching mechanism has been put up for the most db query, if an user exists in the users table or not (it runs in each auth middleware calls for GET and PUT requests).
+
+- When an user is created, a record is added to Redis (for 30 minutes but this time is arbitary) with the user's ID as the key and `'true'` as the value
+- This is then used in the auth middleware to check if the user is presented in the database. If there is no record in Redis (expired after 30 mins of user creation), only then it does an actual db call. If a db record is found, the record is added again to Redis
+- When an user is deleted, the record with the user's ID as key is deleted to invalidate the cache

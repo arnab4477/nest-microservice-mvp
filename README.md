@@ -1,12 +1,12 @@
-# Running the server:
+# Running the server
 
-## System Requirements:
+## System Requirements
 
 [Docker](https://docs.docker.com/get-docker/)
 
 [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Instructions (Linux):
+## Instructions (Linux)
 
 ### Clone this repository
 

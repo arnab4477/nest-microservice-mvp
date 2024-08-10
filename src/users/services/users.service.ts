@@ -1,4 +1,13 @@
-import { And, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, QueryFailedError, Repository } from 'typeorm';
+import {
+  And,
+  FindOptionsWhere,
+  In,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Not,
+  QueryFailedError,
+  Repository,
+} from 'typeorm';
 import {
   BadRequestException,
   ConflictException,
@@ -10,20 +19,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import jwt from 'jsonwebtoken';
 
 import { UserEntity } from 'entities';
-import { CreateUserDto, GetUserQueryDto, UpdateUserDto } from 'users/dto';
 import { CONFIG } from 'config';
+import { CreateUserDto, GetUserQueryDto, UpdateUserDto } from 'users/dto';
+import { BlockService } from 'block/services/block.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(UserEntity) private readonly userModel: Repository<UserEntity>) {}
+  constructor(
+    @InjectRepository(UserEntity) private readonly userModel: Repository<UserEntity>,
+    private readonly blockService: BlockService,
+  ) {}
 
-  async find(query: GetUserQueryDto) {
+  async find(query: GetUserQueryDto, currentUserId: string) {
     if (query.min_age && query.max_age && query.max_age < query.min_age) {
       throw new BadRequestException('min_age must be less than max_age');
     }
 
+    const blockdIds = await this.blockService.getBlockedUserIds(currentUserId);
+
     const condition: FindOptionsWhere<UserEntity> = {
       username: query.username,
+      id: Not(In(blockdIds)),
     };
 
     let maxBirthdate: Date | undefined = undefined;

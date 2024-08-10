@@ -1,4 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Request } from 'express';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
+
 import { CreateUserDto, UserIdDto, GetUserQueryDto, UpdateUserDto } from 'users/dto';
 import { UsersService } from '../services/users.service';
 
@@ -12,8 +14,8 @@ export class UsersController {
   }
 
   @Get('/search')
-  find(@Query() query: GetUserQueryDto) {
-    return this.usersService.find(query);
+  find(@Query() query: GetUserQueryDto, @Req() req: Request) {
+    return this.usersService.find(query, req.headers['user_id'] as string);
   }
 
   @Get('/:id')

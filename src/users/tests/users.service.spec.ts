@@ -14,7 +14,7 @@ describe('UsersService', () => {
   // Dependancies
   let userModel: jest.Mocked<Repository<UserEntity>>;
 
-  // mockObjects
+  // mockData
   const createUserDto: CreateUserDto = {
     name: 'John',
     surname: 'Doe',
@@ -43,7 +43,7 @@ describe('UsersService', () => {
     it('should throw BadRequestException when min_age is greater than max_age', async () => {
       const query: GetUserQueryDto = { min_age: 30, max_age: 20 };
 
-      await expect(usersService.find(query)).rejects.toThrow(
+      await expect(usersService.find(query, mockuserId)).rejects.toThrow(
         new BadRequestException('min_age must be less than max_age'),
       );
     });

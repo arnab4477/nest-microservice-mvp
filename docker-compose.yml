@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  redis-service:
+    image: redis:alpine
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   app-db:
     image: postgres:alpine
     container_name: app-db
@@ -29,7 +37,12 @@ services:
       - DB_NAME=postgres
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
+      - JWT_SECRET=jwt-secret
+      - REDIS_PASSWORD=redis-password
+      - REDIS_HOST=redis-service
     depends_on:
+      redis-service:
+        condition: service_healthy
       app-db:
         condition: service_healthy
     ports:

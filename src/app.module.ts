@@ -5,7 +5,9 @@ import { UserEntity } from 'entities';
 import { CONFIG, AppDataSource } from 'config';
 import { AuthMiddleware, LoggerMiddleware } from 'middlewares';
 import { AppController } from './app.controller';
+
 import { BlockModule } from './block/block.module';
+import { RedisModule } from './redis/redis.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -37,6 +39,7 @@ import { UsersModule } from './users/users.module';
     TypeOrmModule.forFeature([UserEntity]),
     BlockModule,
     UsersModule,
+    RedisModule,
   ],
 
   controllers: [AppController],
